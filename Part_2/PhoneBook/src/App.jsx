@@ -3,6 +3,7 @@ import { Filter } from "./Filter";
 import { PersonForm } from "./PersonForm";
 import { Person } from "./Person";
 import personService from './services/persons';
+import { Notificacion } from "./Notification";
 
 
 const App = () => {
@@ -23,6 +24,9 @@ const App = () => {
   const [newNumber, setNewNumber] = useState("");
   const [filterName, setFilterName] = useState("");
   const [searchResults, setSearchResults] = useState([]);
+  const [notificationMessage, setNotificationMessage] = useState(null);
+  const [errorMesage, setErrorMessage] = useState(null);
+ 
 
   const addName = (e) => {
     e.preventDefault();
@@ -52,8 +56,19 @@ const App = () => {
             );
             setNewName("");
             setNewNumber("");
+            setNotificationMessage(`you modified ${nameObject.name}`);
+            setTimeout(() => {
+              setNotificationMessage(null);
+            }, 5000);
+            
           })
           .catch((error) => {
+            setErrorMessage(
+              `information of ${nameObject.name} has already been removed from server`
+            );
+            setTimeout(() => {
+              setErrorMessage(null);
+            }, 5000);
             console.error("Error al actualizar el número:", error);
           });
       }
@@ -65,8 +80,18 @@ const App = () => {
           setPersons(persons.concat(response.data));
           setNewName("");
           setNewNumber("");
+          setNotificationMessage(`Added ${nameObject.name}`);
+          setTimeout(() => {
+            setNotificationMessage(null);
+          }, 5000);
         })
         .catch((error) => {
+          setErrorMessage(
+            'server error'
+          );
+          setTimeout(() => {
+            setErrorMessage(null);
+          }, 5000);
           console.error("Error al agregar el nuevo contacto:", error);
         });
     }
@@ -99,6 +124,7 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
+      <Notificacion message={notificationMessage} errorMensaje={errorMesage} />
 
       <Filter
         filterName={filterName}
@@ -115,13 +141,9 @@ const App = () => {
         handleNumberChange={handleNumberChange}
         addName={addName}
       />
-      
+
       <h2>Numbers</h2>
-      <Person
-        persons={persons}
-        setPersons={setPersons}
-      />
-  
+      <Person persons={persons} setPersons={setPersons} />
     </div>
   );
 };
