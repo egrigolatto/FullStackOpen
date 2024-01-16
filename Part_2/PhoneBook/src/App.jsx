@@ -86,9 +86,7 @@ const App = () => {
           }, 5000);
         })
         .catch((error) => {
-          setErrorMessage(
-            'server error'
-          );
+          setErrorMessage(error.response.data.error || "server error");
           setTimeout(() => {
             setErrorMessage(null);
           }, 5000);
