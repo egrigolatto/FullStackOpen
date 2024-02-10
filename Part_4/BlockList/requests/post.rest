@@ -1,0 +1,10 @@
+post http://localhost:3003/api/blogs
+content-type: application/json
+Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImpvcmdlIiwiaWQiOiI2NWExYzc3YTI3MWQ1ZDU0MGExNzAxNzUiLCJpYXQiOjE3MDUyNTA3NzYsImV4cCI6MTcwNTI1NDM3Nn0.5wD1W4C9i589z0j2G7gHhgzBBXuw6ZyzwwYtoum-duo
+
+{
+  "title": "blog 2 jorge",
+  "author": "jorge",
+  "url":"http://www.jorgeelcurioso.com",
+  "likes": 10
+}
