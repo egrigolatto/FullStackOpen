@@ -8,7 +8,7 @@ const Filter = ({ filterText, handleFilterChange, filteredPersons }) => {
       <input value={filterText} onChange={handleFilterChange} />
       <br />
       {filteredPersons.map((p) => (
-        <p key={p.id}>{p.name}</p>
+        <p key={p.id}>{p.name} {p.number}</p>
       ))}
     </>
   );
