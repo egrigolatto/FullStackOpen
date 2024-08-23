@@ -3,6 +3,7 @@ import { Filter } from "./components/Filter";
 import { PersonForm } from "./components/PersonForm";
 import { Persons } from "./components/Persons";
 import personService from "./services/persons";
+import { Notification } from "./components/Notification";
 
 const App = () => {
   const [persons, setPersons] = useState([]);
@@ -10,6 +11,8 @@ const App = () => {
   const [newNumber, setNewNumber] = useState("");
   const [filteredPersons, setFilteredPersons] = useState([]);
   const [filterText, setFilterText] = useState("");
+  const [notificationMessage, setNotificationMessage] = useState(null);
+  const [errorMesage, setErrorMessage] = useState(null);
 
   useEffect(() => {
     personService.getAll().then((response) => {
@@ -44,9 +47,19 @@ const App = () => {
             );
             setNewName("");
             setNewNumber("");
+            setNotificationMessage(`you modified ${personObject.name}`);
+            setTimeout(() => {
+              setNotificationMessage(null);
+            }, 5000);
           })
           .catch((error) => {
             console.log(error);
+            setErrorMessage(
+              `information of ${personObject.name} has already been removed from server`
+            );
+            setTimeout(() => {
+              setErrorMessage(null);
+            }, 5000);
             setNewName("");
             setNewNumber("");
           });
@@ -58,11 +71,19 @@ const App = () => {
           setPersons(persons.concat(response.data));
           setNewName("");
           setNewNumber("");
+          setNotificationMessage(`Added ${personObject.name}`);
+          setTimeout(() => {
+            setNotificationMessage(null);
+          }, 5000);
         })
         .catch((error) => {
           console.log(error);
           setNewName("");
           setNewNumber("");
+          setErrorMessage(error.response.data.error || "server error");
+          setTimeout(() => {
+            setErrorMessage(null);
+          }, 5000);
         });
     }
     setNewName("");
@@ -97,12 +118,19 @@ const App = () => {
         .remove(id)
         .then(() => {
           setPersons(persons.filter((p) => p.id !== id));
+          setNotificationMessage(`Deleted ${person.name}`);
+          setTimeout(() => {
+            setNotificationMessage(null);
+          }, 5000);
         })
         .catch((error) => {
           console.log(error);
-          alert(
-            `Information of ${person.name} has already been removed from server`
+          setErrorMessage(
+            `information of ${person.name} has already been removed from server`
           );
+          setTimeout(() => {
+            setErrorMessage(null);
+          }, 5000);
           setPersons(persons.filter((p) => p.id !== id));
         });
     }
@@ -111,6 +139,8 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
+
+      <Notification message={notificationMessage} errorMensaje={errorMesage} />
 
       <Filter
         filterText={filterText}
