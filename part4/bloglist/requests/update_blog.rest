@@ -1,9 +1,10 @@
-PUT http://localhost:3003/api/blogs/66d5a7fe405670c1a5e4271e
+PUT http://localhost:3003/api/blogs/66df6420d4f1310340bfb991
 Content-Type: application/json
+Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImVtYWdyaWdvIiwiaWQiOiI2NmRmNjM2N2Q0ZjEzMTAzNDBiZmI5ODUiLCJpYXQiOjE3MjU5MTYwNzcsImV4cCI6MTcyNTkxOTY3N30.b5p3AJLDBSr5SLEOgEvPglPNXk1zRTrOSjjU2NgGU5o
 
 {
-  "title": "String25",
-  "author": "String25",
-  "url": "String25",
-  "likes": 1000
+  "title": "prueba1 update",
+  "author": "ema",
+  "url": "String",
+  "likes": 100
 }

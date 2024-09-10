@@ -1,9 +1,10 @@
 POST http://localhost:3003/api/blogs
 Content-Type: application/json
+Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImVtYWdyaWdvIiwiaWQiOiI2NmRmNjM2N2Q0ZjEzMTAzNDBiZmI5ODUiLCJpYXQiOjE3MjU5MTYwNzcsImV4cCI6MTcyNTkxOTY3N30.b5p3AJLDBSr5SLEOgEvPglPNXk1zRTrOSjjU2NgGU5o
 
 {
-  "title": "String2",
-  "author": "String2",
-  "url": "String2",
+  "title": "prueba1",
+  "author": "ema",
+  "url": "String",
   "likes": 100
 }
