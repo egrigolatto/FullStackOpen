@@ -28,4 +28,4 @@ const Notification = ({ message, errorMensaje }) => {
   return <div style={estilos}>{errorMensaje || message}</div>;
 };
 
-export default Notification;
+export { Notification };
