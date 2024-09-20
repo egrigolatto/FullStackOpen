@@ -35,12 +35,10 @@ const App = () => {
       window.localStorage.setItem("loggedNoteappUser", JSON.stringify(user));
       blogService.setToken(user.token);
       setUser(user);
-    } catch (exception) {
-      console.log(exception);
-      setErrorMessage("Wrong credentials");
-      setTimeout(() => {
-        setErrorMessage(null);
-      }, 5000);
+      handleNotification(`logged in with ${user.name} `);
+    } catch (error) {
+      console.log(error);
+      handleError("Wrong credentials");
     }
   };
 
@@ -49,8 +47,10 @@ const App = () => {
       blogFormRef.current.toggleVisibility();
       const returnedBlog = await blogService.create(newBlog);
       setBlogs(blogs.concat(returnedBlog));
+      handleNotification(`A new blog ${newBlog.title} by ${newBlog.author}`);
     } catch (error) {
       console.log(error);
+      handleError(error)
     }
   };
 
@@ -67,15 +67,30 @@ const App = () => {
       await blogService.remove(deleteBlog);
       const updatedBlogs = blogs.filter((blog) => blog.id !== deleteBlog.id);
       setBlogs(updatedBlogs);
+      handleNotification("Blog Delete")
     } catch (error) {
       console.log(error);
+      handleError(error)
     }
   };
-
 
   const handleLogout = () => {
     window.localStorage.removeItem("loggedNoteappUser");
     setUser(null);
+  };
+
+  const handleError = (errorMessage) => {
+    setErrorMessage(errorMessage);
+    setTimeout(() => {
+      setErrorMessage(null);
+    }, 5000);
+  };
+
+  const handleNotification = (notificationMessage) => {
+    setNotificationMessage(notificationMessage);
+    setTimeout(() => {
+      setNotificationMessage(null);
+    }, 5000);
   };
 
   const sortedBlogs = [...blogs].sort((a, b) => b.likes - a.likes);
@@ -100,7 +115,7 @@ const App = () => {
             <br />
             <br />
             <Togglable buttonLabel="create new blog" ref={blogFormRef}>
-              <BlogForm createBlog={addBlog} />
+              <BlogForm createBlog={addBlog} handleError={handleError} />
             </Togglable>
             <br />
           </div>

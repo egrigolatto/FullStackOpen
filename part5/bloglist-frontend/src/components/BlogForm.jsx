@@ -1,7 +1,7 @@
 import React from "react";
 import { useState } from "react";
 
-const BlogForm = ({ createBlog }) => {
+const BlogForm = ({ createBlog, handleError }) => {
   const [title, setTitle] = useState("");
   const [author, setAuthor] = useState("");
   const [url, setUrl] = useState("");
@@ -9,6 +9,11 @@ const BlogForm = ({ createBlog }) => {
 
   const handleNewBlog = async (event) => {
     event.preventDefault();
+
+    if (!title || !author || !url) {
+      handleError("complete all fields");
+      return;
+    }
 
     createBlog({
       title: title,

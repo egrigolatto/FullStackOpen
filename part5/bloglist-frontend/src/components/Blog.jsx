@@ -8,7 +8,7 @@ const Blog = ({ blog, addLike, handleDelete, currentUser }) => {
   };
   const Likes = () => {
     if (currentUser) {
-       const updatedBlog = { ...blog, likes: blog.likes + 1 };
+      const updatedBlog = { ...blog, likes: blog.likes + 1 };
       addLike(updatedBlog);
       setLike(blog.likes + 1);
     }
