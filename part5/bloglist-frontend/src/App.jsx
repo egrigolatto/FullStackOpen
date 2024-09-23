@@ -57,6 +57,7 @@ const App = () => {
   const addLike = async (updatedBlog) => {
     try {
       const bloglike = await blogService.update(updatedBlog);
+      return bloglike; // Retorna el blog actualizado
     } catch (error) {
       console.error("Error updating the blog:", error);
     }
