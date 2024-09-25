@@ -21,6 +21,7 @@ const LoginForm = ({ login }) => {
       <div>
         username{" "}
         <input
+          id="username"
           type="text"
           value={username}
           name="Username"
@@ -30,6 +31,7 @@ const LoginForm = ({ login }) => {
       <div>
         password{" "}
         <input
+          id="password"
           style={{ marginTop: "5px" }}
           type="password"
           value={password}
@@ -38,7 +40,9 @@ const LoginForm = ({ login }) => {
         />
       </div>
       <br />
-      <button type="submit">login</button>
+      <button id="login-button" type="submit">
+        login
+      </button>
     </form>
   );
 };

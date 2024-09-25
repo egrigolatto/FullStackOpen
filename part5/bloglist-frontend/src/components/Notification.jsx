@@ -25,7 +25,7 @@ const Notification = ({ message, errorMensaje }) => {
 
   const estilos = errorMensaje ? estiloError : estiloMensaje;
 
-  return <div style={estilos}>{errorMensaje || message}</div>;
+  return <div className="error" style={estilos}>{errorMensaje || message}</div>;
 };
 
 export { Notification };
