@@ -1,13 +1,15 @@
 import { useSelector, useDispatch } from "react-redux";
+import { vote } from "../reducers/anecdoteReducer";
+import { setNotification } from "../reducers/notificationReducer";
 
 const AnecdoteList = () => {
   const anecdotes = useSelector((state) => state.anecdotes);
   const filter = useSelector((state) => state.filter);
   const dispatch = useDispatch();
 
-  const vote = (id) => {
-    console.log("vote", id);
-    dispatch({ type: "VOTE", data: { id } });
+  const handleVote = (anecdote) => {
+    dispatch(vote(anecdote.id));
+    dispatch(setNotification(`Voted for: ${anecdote.content}`, 100));
   };
 
   // Filtrar las anécdotas basadas en el filtro aplicado
@@ -26,7 +28,7 @@ const AnecdoteList = () => {
           <div>{anecdote.content}</div>
           <div>
             has {anecdote.votes}
-            <button onClick={() => vote(anecdote.id)}>vote</button>
+            <button onClick={() => handleVote(anecdote)}>vote</button>
           </div>
         </div>
       ))}

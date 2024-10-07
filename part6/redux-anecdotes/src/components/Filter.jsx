@@ -6,14 +6,13 @@ const Filter = () => {
 
   const handleChange = (event) => {
     const filter = event.target.value;
-    // Despachar la acción para cambiar el filtro
     dispatch(setFilter(filter));
   };
 
   const style = {
     marginBottom: 10,
   };
-
+  
   return (
     <div style={style}>
       filter <input onChange={handleChange} />
