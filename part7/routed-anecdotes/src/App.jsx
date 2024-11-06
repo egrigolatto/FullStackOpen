@@ -2,98 +2,17 @@ import { useState } from "react";
 import {
   Routes,
   Route,
-  Link,
-  useParams,
-  useNavigate,
-  useMatch,
+  useMatch
 } from "react-router-dom";
 import AnecdoteForm from "./components/AnecdoteForm";
-
-const Menu = () => {
-  const padding = {
-    paddingRight: 5,
-  };
-  return (
-    <div>
-      <Link to="/" style={padding}>
-        anecdotes
-      </Link>
-      <Link to="/create" style={padding}>
-        create new
-      </Link>
-      <Link to="/about" style={padding}>
-        about
-      </Link>
-    </div>
-  );
-};
-
-const AnecdoteList = ({ anecdotes }) => (
-  <div>
-    <h2>Anecdotes</h2>
-    <ul>
-      {anecdotes.map((anecdote) => (
-        <li key={anecdote.id}>
-          <Link to={`/${anecdote.id}`}>{anecdote.content}</Link>
-        </li>
-      ))}
-    </ul>
-  </div>
-);
-
-const Anecdote = ({ anecdote }) => {
-
-  if (!anecdote) {
-    return <p>No anecdote with that id</p>;    
-  }
-  
-  return (
-    <div>
-    <h4>{anecdote.content}</h4>
-    <p>has {anecdote.votes} votes</p>
-    <p>for more info see {anecdote.info}</p>
-  </div>
-  )
-};
-
-const About = () => (
-  <div>
-    <h2>About anecdote app</h2>
-    <p>According to Wikipedia:</p>
-
-    <em>
-      An anecdote is a brief, revealing account of an individual person or an
-      incident. Occasionally humorous, anecdotes differ from jokes because their
-      primary purpose is not simply to provoke laughter but to reveal a truth
-      more general than the brief tale itself, such as to characterize a person
-      by delineating a specific quirk or trait, to communicate an abstract idea
-      about a person, place, or thing through the concrete details of a short
-      narrative. An anecdote is &quot;a story with a point.&quot;
-    </em>
-
-    <p>
-      Software engineering is full of excellent anecdotes, at this app you can
-      find the best and add more.
-    </p>
-  </div>
-);
-
-const Footer = () => (
-  <footer>
-    Anecdote app for <a href="https://fullstackopen.com/">Full Stack Open</a>.
-    See{" "}
-    <a href="https://github.com/fullstack-hy2020/routed-anecdotes/blob/master/src/App.js">
-      https://github.com/fullstack-hy2020/routed-anecdotes/blob/master/src/App.js
-    </a>{" "}
-    for the source code.
-  </footer>
-);
-
-
-
-const Notification = ({ message }) => {
-  return <p>{message}</p>;
-};
+import AnecdoteList from "./components/AnecdoteList";
+import Anecdote from "./components/Anecdote";
+import About from "./components/About";
+import Notification from "./components/Notification";
+import Header from "./components/Header";
+import Main from "./components/Main";
+import "./App.css";
+import Footer from "./components/Footer";
 
 const App = () => {
   const [anecdotes, setAnecdotes] = useState([
@@ -143,16 +62,14 @@ const App = () => {
   };
 
   return (
-    <div>
-      <h1>Software anecdotes</h1>
-      <Menu />
-      <Notification message={notification} />
-      <Routes>
-        <Route path="/" element={<AnecdoteList anecdotes={anecdotes} />} />
-        <Route path="/:id" element={<Anecdote anecdote={anecdote} />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/create" element={<AnecdoteForm addNew={addNew} />} />
-      </Routes>
+    <div className="container">
+      <Header />
+      <Main
+        notification={notification}
+        anecdotes={anecdotes}
+        addNew={addNew}
+        anecdote={anecdote}
+      />
       <Footer />
     </div>
   );

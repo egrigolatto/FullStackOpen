@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { useField } from "../hooks";
+import { Form, Button } from "react-bootstrap";
 
 const AnecdoteForm = (props) => {
   const { reset: resetContent, ...content } = useField("text");
@@ -31,24 +32,27 @@ const AnecdoteForm = (props) => {
   return (
     <div>
       <h2>create a new anecdote</h2>
-      <form onSubmit={handleSubmit}>
-        <div>
-          content
-          <input {...content} />
-        </div>
-        <div>
-          author
-          <input {...author} />
-        </div>
-        <div>
-          url for more info
-          <input {...info} />
-        </div>
-        <button type="submit">create</button>
-        <button type="button" onClick={handleReset}>
+      <Form onSubmit={handleSubmit}>
+        <Form.Group>
+          <Form.Label>content:</Form.Label>
+          <Form.Control {...content} />
+        </Form.Group>
+        <Form.Group>
+          <Form.Label> author:</Form.Label>
+          <Form.Control {...author} />
+        </Form.Group>
+        <Form.Group>
+          <Form.Label> url for more info:</Form.Label>
+          <Form.Control {...info} />
+        </Form.Group>
+        <br />
+        <Button variant="primary" type="submit">
+          create
+        </Button>{" "}
+        <Button variant="secondary" type="button" onClick={handleReset}>
           reset
-        </button>
-      </form>
+        </Button>{" "}
+      </Form>
     </div>
   );
 };
