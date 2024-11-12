@@ -6,13 +6,14 @@ import { Notification } from "./components/Notification";
 import { LoginForm } from "./components/LoginForm";
 import { Togglable } from "./components/Togglable";
 import { BlogForm } from "./components/BlogForm";
+import { useDispatch } from "react-redux";
+import { setNotification } from "./reducers/notificationReducer";
 
 const App = () => {
   const [blogs, setBlogs] = useState([]);
   const [user, setUser] = useState(null);
 
-  const [notificationMessage, setNotificationMessage] = useState(null);
-  const [errorMesage, setErrorMessage] = useState(null);
+  const dispatch = useDispatch();
 
   useEffect(() => {
     blogService.getAll().then((blogs) => setBlogs(blogs));
@@ -35,10 +36,10 @@ const App = () => {
       window.localStorage.setItem("loggedNoteappUser", JSON.stringify(user));
       blogService.setToken(user.token);
       setUser(user);
-      handleNotification(`logged in with ${user.name} `);
+      dispatch(setNotification(`logged in with ${user.name} `, "success", 5));
     } catch (error) {
       console.log(error);
-      handleError("Wrong credentials");
+      dispatch(setNotification("Wrong credentials", "error", 5));
     }
   };
 
@@ -47,10 +48,10 @@ const App = () => {
       blogFormRef.current.toggleVisibility();
       const returnedBlog = await blogService.create(newBlog);
       setBlogs(blogs.concat(returnedBlog));
-      handleNotification(`A new blog ${newBlog.title} by ${newBlog.author}`);
+      dispatch(setNotification(`A new blog ${newBlog.title} by ${newBlog.author}`, "success", 5 ));
     } catch (error) {
       console.log(error);
-      handleError(error)
+      dispatch(setNotification(error, "error", 5));
     }
   };
 
@@ -60,6 +61,7 @@ const App = () => {
       return bloglike; // Retorna el blog actualizado
     } catch (error) {
       console.error("Error updating the blog:", error);
+      dispatch(setNotification("Error updating the blog:" + error, "error", 5));
     }
   };
 
@@ -68,10 +70,10 @@ const App = () => {
       await blogService.remove(deleteBlog);
       const updatedBlogs = blogs.filter((blog) => blog.id !== deleteBlog.id);
       setBlogs(updatedBlogs);
-      handleNotification("Blog Delete")
+      dispatch(setNotification("Blog Delete", "success", 5));
     } catch (error) {
       console.log(error);
-      handleError(error)
+      dispatch(setNotification("Error deleting the blog:" + error, "error", 5));
     }
   };
 
@@ -80,25 +82,11 @@ const App = () => {
     setUser(null);
   };
 
-  const handleError = (errorMessage) => {
-    setErrorMessage(errorMessage);
-    setTimeout(() => {
-      setErrorMessage(null);
-    }, 5000);
-  };
-
-  const handleNotification = (notificationMessage) => {
-    setNotificationMessage(notificationMessage);
-    setTimeout(() => {
-      setNotificationMessage(null);
-    }, 5000);
-  };
-
   const sortedBlogs = [...blogs].sort((a, b) => b.likes - a.likes);
 
   return (
     <div>
-      <Notification message={notificationMessage} errorMensaje={errorMesage} />
+      <Notification />
 
       <h1 style={{ color: "green" }}>Blogs</h1>
 
@@ -116,7 +104,7 @@ const App = () => {
             <br />
             <br />
             <Togglable buttonLabel="create new blog" ref={blogFormRef}>
-              <BlogForm createBlog={addBlog} handleError={handleError} />
+              <BlogForm createBlog={addBlog} />
             </Togglable>
             <br />
           </div>

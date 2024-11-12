@@ -1,17 +1,21 @@
 import React from "react";
 import { useState } from "react";
+import { useDispatch } from "react-redux";
+import { setNotification } from "../reducers/notificationReducer";
 
-const BlogForm = ({ createBlog, handleError }) => {
+const BlogForm = ({ createBlog }) => {
   const [title, setTitle] = useState("");
   const [author, setAuthor] = useState("");
   const [url, setUrl] = useState("");
   // const [likes, setLikes] = useState("");
 
+  const dispatch = useDispatch();
+
   const handleNewBlog = async (event) => {
     event.preventDefault();
 
     if (!title || !author || !url) {
-      handleError("complete all fields");
+      dispatch(setNotification("complete all fields", "error", 5));
       return;
     }
 
