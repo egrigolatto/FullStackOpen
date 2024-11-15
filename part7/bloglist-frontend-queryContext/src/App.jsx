@@ -6,13 +6,13 @@ import { Notification } from "./components/Notification";
 import { LoginForm } from "./components/LoginForm";
 import { Togglable } from "./components/Togglable";
 import { BlogForm } from "./components/BlogForm";
+import { useShowNotification } from "./NotificationContext";
 
 const App = () => {
   const [blogs, setBlogs] = useState([]);
   const [user, setUser] = useState(null);
 
-  const [notificationMessage, setNotificationMessage] = useState(null);
-  const [errorMesage, setErrorMessage] = useState(null);
+  const showNotification = useShowNotification();
 
   useEffect(() => {
     blogService.getAll().then((blogs) => setBlogs(blogs));
@@ -35,10 +35,10 @@ const App = () => {
       window.localStorage.setItem("loggedNoteappUser", JSON.stringify(user));
       blogService.setToken(user.token);
       setUser(user);
-      handleNotification(`logged in with ${user.name} `);
+      showNotification(`Logged in with ${user.name}`, "success");
     } catch (error) {
       console.log(error);
-      handleError("Wrong credentials");
+      showNotification("Wrong credentials", "error");
     }
   };
 
@@ -47,10 +47,10 @@ const App = () => {
       blogFormRef.current.toggleVisibility();
       const returnedBlog = await blogService.create(newBlog);
       setBlogs(blogs.concat(returnedBlog));
-      handleNotification(`A new blog ${newBlog.title} by ${newBlog.author}`);
+      showNotification(`A new blog ${newBlog.title} by ${newBlog.author}`, "success");
     } catch (error) {
       console.log(error);
-      handleError(error)
+      showNotification(error, "error");
     }
   };
 
@@ -68,10 +68,10 @@ const App = () => {
       await blogService.remove(deleteBlog);
       const updatedBlogs = blogs.filter((blog) => blog.id !== deleteBlog.id);
       setBlogs(updatedBlogs);
-      handleNotification("Blog Delete")
+      showNotification("Blog Delete", "success");
     } catch (error) {
       console.log(error);
-      handleError(error)
+      showNotification(error, "error");
     }
   };
 
@@ -80,25 +80,11 @@ const App = () => {
     setUser(null);
   };
 
-  const handleError = (errorMessage) => {
-    setErrorMessage(errorMessage);
-    setTimeout(() => {
-      setErrorMessage(null);
-    }, 5000);
-  };
-
-  const handleNotification = (notificationMessage) => {
-    setNotificationMessage(notificationMessage);
-    setTimeout(() => {
-      setNotificationMessage(null);
-    }, 5000);
-  };
-
   const sortedBlogs = [...blogs].sort((a, b) => b.likes - a.likes);
 
   return (
     <div>
-      <Notification message={notificationMessage} errorMensaje={errorMesage} />
+      <Notification />
 
       <h1 style={{ color: "green" }}>Blogs</h1>
 
@@ -116,7 +102,7 @@ const App = () => {
             <br />
             <br />
             <Togglable buttonLabel="create new blog" ref={blogFormRef}>
-              <BlogForm createBlog={addBlog} handleError={handleError} />
+              <BlogForm createBlog={addBlog} />
             </Togglable>
             <br />
           </div>

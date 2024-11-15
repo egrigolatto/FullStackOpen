@@ -1,17 +1,20 @@
 import React from "react";
 import { useState } from "react";
+import { useShowNotification } from "../NotificationContext";
 
-const BlogForm = ({ createBlog, handleError }) => {
+const BlogForm = ({ createBlog }) => {
   const [title, setTitle] = useState("");
   const [author, setAuthor] = useState("");
   const [url, setUrl] = useState("");
   // const [likes, setLikes] = useState("");
 
+  const showNotification = useShowNotification();
+
   const handleNewBlog = async (event) => {
     event.preventDefault();
 
     if (!title || !author || !url) {
-      handleError("complete all fields");
+      showNotification("complete all fields", "error");
       return;
     }
 

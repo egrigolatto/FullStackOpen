@@ -1,31 +1,20 @@
-const Notification = ({ message, errorMensaje }) => {
-  const estiloMensaje = {
-    color: "green",
-    fontStyle: "italic",
-    fontSize: 20,
-    border: "4px solid green",
+import { useNotificaction } from "../NotificationContext";
+
+const Notification = () => {
+  const notification = useNotificaction();
+
+  if (!notification) return null;
+
+  const style = {
+    border: "solid",
     padding: 10,
-    backgroundColor: "lightgrey",
-    marginBottom: 10,
+    borderWidth: 1,
+    marginBottom: 5,
+    color: notification.type === "success" ? "green" : "red",
+    borderColor: notification.type === "success" ? "green" : "red",
   };
 
-  const estiloError = {
-    color: "red",
-    fontStyle: "italic",
-    fontSize: 20,
-    border: "4px solid red",
-    padding: 10,
-    backgroundColor: "lightgrey",
-    marginBottom: 10,
-  };
-
-  if (!message && !errorMensaje) {
-    return null;
-  }
-
-  const estilos = errorMensaje ? estiloError : estiloMensaje;
-
-  return <div className="error" style={estilos}>{errorMensaje || message}</div>;
+  return <div style={style}>{notification.message}</div>;
 };
 
 export { Notification };
