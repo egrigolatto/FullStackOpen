@@ -7,16 +7,57 @@ import { LoginForm } from "./components/LoginForm";
 import { Togglable } from "./components/Togglable";
 import { BlogForm } from "./components/BlogForm";
 import { useShowNotification } from "./NotificationContext";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 const App = () => {
-  const [blogs, setBlogs] = useState([]);
   const [user, setUser] = useState(null);
+
+  const queryClient = useQueryClient();
+
+  const result = useQuery({
+    queryKey: ["blogs"],
+    queryFn: blogService.getAll,
+    refetchOnWindowFocus: false,
+  });
+  console.log(JSON.parse(JSON.stringify(result)));
+
+  const blogs = result.data || [];
 
   const showNotification = useShowNotification();
 
-  useEffect(() => {
-    blogService.getAll().then((blogs) => setBlogs(blogs));
-  }, []);
+  const updateBlogMutation = useMutation({
+    mutationFn: blogService.update,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["blogs"] });
+    },
+    onError: (error) => {
+      console.log(error);
+    }
+  });
+
+  const deleteBlogMutation = useMutation({
+    mutationFn: blogService.remove,
+    onSuccess: (deletedBlog) => {
+      queryClient.setQueryData(["blogs"], (oldBlogs) =>
+        oldBlogs.filter((blog) => blog.id !== deletedBlog.id)
+      );
+      showNotification("Blog deleted successfully", "success");
+    },
+    onError: (error) => {
+      console.error(error);
+      showNotification("Failed to delete the blog", "error");
+    },
+  });
+
+  const handleDelete = (blog) => {
+    const confirmDelete = window.confirm(
+      `Are you sure you want to delete the blog "${blog.title}"?`
+    );
+    if (confirmDelete) {
+      deleteBlogMutation.mutate(blog);
+    }
+  };
+
 
   useEffect(() => {
     const loggedUserJSON = window.localStorage.getItem("loggedNoteappUser");
@@ -28,6 +69,14 @@ const App = () => {
   }, []);
 
   const blogFormRef = useRef();
+
+  if (result.isLoading) {
+    return <div>loading data...</div>;
+  }
+
+  if (result.isError) {
+    return <div>blogs service not available due the problems in sever</div>;
+  }
 
   const handleLogin = async (usuario) => {
     try {
@@ -42,38 +91,17 @@ const App = () => {
     }
   };
 
-  const addBlog = async (newBlog) => {
-    try {
-      blogFormRef.current.toggleVisibility();
-      const returnedBlog = await blogService.create(newBlog);
-      setBlogs(blogs.concat(returnedBlog));
-      showNotification(`A new blog ${newBlog.title} by ${newBlog.author}`, "success");
-    } catch (error) {
-      console.log(error);
-      showNotification(error, "error");
-    }
+  const toggleReff = () => {
+    blogFormRef.current.toggleVisibility();
   };
 
-  const addLike = async (updatedBlog) => {
-    try {
-      const bloglike = await blogService.update(updatedBlog);
-      return bloglike; // Retorna el blog actualizado
-    } catch (error) {
-      console.error("Error updating the blog:", error);
-    }
+  const addLike = (blog) => {
+    updateBlogMutation.mutate({
+      ...blog,
+      likes: blog.likes + 1,
+    });
   };
 
-  const handleDelete = async (deleteBlog) => {
-    try {
-      await blogService.remove(deleteBlog);
-      const updatedBlogs = blogs.filter((blog) => blog.id !== deleteBlog.id);
-      setBlogs(updatedBlogs);
-      showNotification("Blog Delete", "success");
-    } catch (error) {
-      console.log(error);
-      showNotification(error, "error");
-    }
-  };
 
   const handleLogout = () => {
     window.localStorage.removeItem("loggedNoteappUser");
@@ -102,7 +130,7 @@ const App = () => {
             <br />
             <br />
             <Togglable buttonLabel="create new blog" ref={blogFormRef}>
-              <BlogForm createBlog={addBlog} />
+              <BlogForm toggleReff={toggleReff} />
             </Togglable>
             <br />
           </div>

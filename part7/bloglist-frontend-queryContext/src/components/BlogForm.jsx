@@ -1,14 +1,30 @@
-import React from "react";
 import { useState } from "react";
 import { useShowNotification } from "../NotificationContext";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import blogService from "../services/blogs";
 
-const BlogForm = ({ createBlog }) => {
+const BlogForm = ({ toggleReff }) => {
   const [title, setTitle] = useState("");
   const [author, setAuthor] = useState("");
   const [url, setUrl] = useState("");
   // const [likes, setLikes] = useState("");
 
   const showNotification = useShowNotification();
+  const queryClient = useQueryClient();
+
+  const newBlogMutation = useMutation({
+    mutationFn: blogService.create,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["blogs"] });
+    },
+    // onSuccess: (newBlog) => {
+    //   const blogs = queryClient.getQueryData("blogs");
+    //   queryClient.setQueryData("blogs", blogs.concat(newBlog));
+    // },
+    onError: (error) => {
+      showNotification(`Failed to create anecdote: ${error.message}`, "error");
+    },
+  });
 
   const handleNewBlog = async (event) => {
     event.preventDefault();
@@ -18,16 +34,15 @@ const BlogForm = ({ createBlog }) => {
       return;
     }
 
-    createBlog({
-      title: title,
-      author: author,
-      url: url,
-      // ...(likes && { likes: Number(likes) }),
-    });
+    newBlogMutation.mutate({ title, author, url });
+
+    showNotification(`A new blog ${title} by ${author}`, "success");
 
     setTitle("");
     setAuthor("");
     setUrl("");
+
+    toggleReff();
   };
 
   return (
