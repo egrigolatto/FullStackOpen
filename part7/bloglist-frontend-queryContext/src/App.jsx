@@ -8,9 +8,25 @@ import { Togglable } from "./components/Togglable";
 import { BlogForm } from "./components/BlogForm";
 import { useShowNotification } from "./NotificationContext";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useUser } from "./userContext";
 
 const App = () => {
-  const [user, setUser] = useState(null);
+  const { user, login, logout } = useUser();
+
+  const handleLogin = async (usuario) => {
+    try {
+      const user = await loginService.login(usuario);
+      login(user);
+      showNotification(`Logged in with ${user.name}`, "success");
+    } catch (error) {
+      console.log(error);
+      showNotification("Wrong credentials", "error");
+    }
+  };
+
+  const handleLogout = () => {
+    logout();
+  };
 
   const queryClient = useQueryClient();
 
@@ -58,16 +74,6 @@ const App = () => {
     }
   };
 
-
-  useEffect(() => {
-    const loggedUserJSON = window.localStorage.getItem("loggedNoteappUser");
-    if (loggedUserJSON) {
-      const user = JSON.parse(loggedUserJSON);
-      setUser(user);
-      blogService.setToken(user.token);
-    }
-  }, []);
-
   const blogFormRef = useRef();
 
   if (result.isLoading) {
@@ -78,18 +84,6 @@ const App = () => {
     return <div>blogs service not available due the problems in sever</div>;
   }
 
-  const handleLogin = async (usuario) => {
-    try {
-      const user = await loginService.login(usuario);
-      window.localStorage.setItem("loggedNoteappUser", JSON.stringify(user));
-      blogService.setToken(user.token);
-      setUser(user);
-      showNotification(`Logged in with ${user.name}`, "success");
-    } catch (error) {
-      console.log(error);
-      showNotification("Wrong credentials", "error");
-    }
-  };
 
   const toggleReff = () => {
     blogFormRef.current.toggleVisibility();
@@ -103,10 +97,6 @@ const App = () => {
   };
 
 
-  const handleLogout = () => {
-    window.localStorage.removeItem("loggedNoteappUser");
-    setUser(null);
-  };
 
   const sortedBlogs = [...blogs].sort((a, b) => b.likes - a.likes);
 
