@@ -1,5 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 import blogService from "../services/blogs";
+import { setNotification } from "./notificationReducer";
 
 const blogSlice = createSlice({
   name: "blog",
@@ -12,20 +13,18 @@ const blogSlice = createSlice({
       return action.payload;
     },
     like: (state, action) => {
-      const id = action.payload.id; // Obtiene el ID de la anécdota a actualizar
+      const id = action.payload.id;
       const blogToChange = state.find((b) => b.id === id);
 
       if (blogToChange) {
         const changedBlog = {
           ...blogToChange,
-          likes: blogToChange.likes + 1, // Incrementa los likes
+          likes: blogToChange.likes + 1,
         };
 
-        return state.map(
-          (blog) => (blog.id !== id ? blog : changedBlog) // Retorna la anécdota actualizada
-        );
+        return state.map((blog) => (blog.id !== id ? blog : changedBlog));
       }
-      return state; // Devuelve el estado sin cambios si no se encuentra la anécdota
+      return state;
     },
     removeBlog(state, action) {
       const id = action.payload;
@@ -34,51 +33,78 @@ const blogSlice = createSlice({
   },
 });
 
-// Exportar las acciones
 export const { like, appendBlog, setBlogs, removeBlog } = blogSlice.actions;
 
-// Función para inicializar blogs desde el servicio
+// Thunks con manejo de errores
 export const initializeBlogs = () => {
   return async (dispatch) => {
-    const blogs = await blogService.getAll();
-    dispatch(setBlogs(blogs));
-  };
-};
-
-// Función para crear una nueva anécdota
-export const createBlog = (content) => {
-  return async (dispatch) => {
-    const newBlog = await blogService.create(content);
-    dispatch(appendBlog(newBlog));
-  };
-};
-
-// Función para votar por una anécdota
-export const likeBlog = (id) => {
-  return async (dispatch, getState) => {
-    // Obtén el estado actual para encontrar la anécdota
-    const state = getState();
-    const blogToLike = state.blogs.find((b) => b.id === id);
-
-    if (blogToLike) {
-      // Crea un objeto actualizado con el nuevo conteo de likes
-      const updatedBlog = {
-        ...blogToLike,
-        likes: blogToLike.likes + 1,
-      };
-
-      // Llama a la función de actualización del servicio
-      await blogService.update(updatedBlog);
-
-      // Despacha la acción de like para actualizar el estado en Redux
-      dispatch(like({ id })); // Esto actualizará el estado en Redux
+    try {
+      const blogs = await blogService.getAll();
+      dispatch(setBlogs(blogs));
+    } catch (error) {
+      console.error("Error fetching blogs:", error);
+      dispatch(setNotification("Error fetching blogs", "error", 5));
     }
   };
 };
-export const deleteBlog = (id) => {
+
+export const createBlog = (content) => {
   return async (dispatch) => {
-    await blogService.remove(id);
-    dispatch(removeBlog(id));
+    try {
+      const newBlog = await blogService.create(content);
+      dispatch(appendBlog(newBlog));
+      dispatch(
+        setNotification(`A new blog "${content.title}" added!`, "success", 5)
+      );
+    } catch (error) {
+      console.error("Error creating blog:", error);
+      dispatch(setNotification("Error creating blog", "error", 5));
+    }
+  };
+};
+
+export const likeBlog = (id) => {
+  return async (dispatch, getState) => {
+    try {
+      const state = getState();
+      const blogToLike = state.blogs.find((b) => b.id === id);
+
+      if (blogToLike) {
+        const updatedBlog = {
+          ...blogToLike,
+          likes: blogToLike.likes + 1,
+        };
+
+        await blogService.update(updatedBlog);
+        dispatch(like({ id }));
+        dispatch(
+          setNotification(`You liked "${blogToLike.title}"`, "success", 5)
+        );
+      }
+    } catch (error) {
+      console.error("Error liking blog:", error);
+      dispatch(setNotification("Error liking blog", "error", 5));
+    }
+  };
+};
+
+export const deleteBlog = (id) => {
+  return async (dispatch, getState) => {
+    try {
+      const state = getState();
+      const blogToDelete = state.blogs.find((b) => b.id === id);
+
+      if (blogToDelete) {
+        await blogService.remove(id);
+        dispatch(removeBlog(id));
+        dispatch(
+          setNotification(`Blog "${blogToDelete.title}" deleted`, "success", 5)
+        );
+      }
+    } catch (error) {
+      console.error("Error deleting blog:", error);
+      dispatch(setNotification("Error deleting blog", "error", 5));
+    }
   };
 };
 

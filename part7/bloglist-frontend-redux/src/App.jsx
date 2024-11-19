@@ -1,13 +1,16 @@
 import { useEffect, useRef } from "react";
 import { Blog } from "./components/Blog";
-import blogService from "./services/blogs";
 import { Notification } from "./components/Notification";
 import { LoginForm } from "./components/LoginForm";
 import { Togglable } from "./components/Togglable";
 import { BlogForm } from "./components/BlogForm";
 import { useDispatch, useSelector } from "react-redux";
-import { setNotification } from "./reducers/notificationReducer";
-import { initializeBlogs, createBlog, likeBlog, deleteBlog } from "./reducers/blogReducer";
+import {
+  initializeBlogs,
+  createBlog,
+  likeBlog,
+  deleteBlog,
+} from "./reducers/blogReducer";
 import { handleLogout, initializeUser } from "./reducers/userReducer";
 
 const App = () => {
@@ -15,6 +18,7 @@ const App = () => {
   const user = useSelector((state) => state.user);
 
   const dispatch = useDispatch();
+  const blogFormRef = useRef();
 
   useEffect(() => {
     dispatch(initializeBlogs());
@@ -24,43 +28,17 @@ const App = () => {
     dispatch(initializeUser());
   }, [dispatch]);
 
-  const blogFormRef = useRef();
-
-  const addBlog = async (newBlog) => {
-    try {
-      blogFormRef.current.toggleVisibility();
-      const returnedBlog = await blogService.create(newBlog);
-      dispatch(createBlog(returnedBlog));
-      dispatch(
-        setNotification(
-          `A new blog ${newBlog.title} by ${newBlog.author}`,
-          "success",
-          5
-        )
-      );
-    } catch (error) {
-      console.log(error);
-      dispatch(setNotification(error, "error", 5));
-    }
+  const addBlog = (newBlog) => {
+    blogFormRef.current.toggleVisibility();
+    dispatch(createBlog(newBlog));
   };
 
-  const addLike = async (updatedBlog) => {
-    try {
-      dispatch(likeBlog(updatedBlog.id));
-    } catch (error) {
-      console.error("Error updating the blog:", error);
-      dispatch(setNotification("Error updating the blog:" + error, "error", 5));
-    }
+  const addLike = (id) => {
+    dispatch(likeBlog(id));
   };
 
-  const handleDelete = async (blog) => {
-    try {
-      dispatch(deleteBlog(blog.id));
-      dispatch(setNotification("Blog Delete", "success", 5));
-    } catch (error) {
-      console.log(error);
-      dispatch(setNotification("Error deleting the blog:" + error, "error", 5));
-    }
+  const handleDelete = (id) => {
+    dispatch(deleteBlog(id));
   };
 
   const handleLogoutForm = () => {
@@ -76,24 +54,19 @@ const App = () => {
       <h1 style={{ color: "green" }}>Blogs</h1>
 
       {user === null ? (
-        <>
-          <Togglable buttonLabel="log in">
-            <LoginForm />
-          </Togglable>
-          <br />
-        </>
+        <Togglable buttonLabel="log in">
+          <LoginForm />
+        </Togglable>
       ) : (
-        <>
-          <div>
-            {user.name} logged-in <button onClick={handleLogoutForm}>Logout</button>
-            <br />
-            <br />
-            <Togglable buttonLabel="create new blog" ref={blogFormRef}>
-              <BlogForm createBlog={addBlog} />
-            </Togglable>
-            <br />
-          </div>
-        </>
+        <div>
+          <p>
+            {user.name} logged-in{" "}
+            <button onClick={handleLogoutForm}>Logout</button>
+          </p>
+          <Togglable buttonLabel="create new blog" ref={blogFormRef}>
+            <BlogForm createBlog={addBlog} />
+          </Togglable>
+        </div>
       )}
 
       <div>
@@ -101,8 +74,8 @@ const App = () => {
           <Blog
             key={blog.id}
             blog={blog}
-            addLike={addLike}
-            handleDelete={handleDelete}
+            addLike={() => addLike(blog.id)}
+            handleDelete={() => handleDelete(blog.id)}
             currentUser={user}
           />
         ))}

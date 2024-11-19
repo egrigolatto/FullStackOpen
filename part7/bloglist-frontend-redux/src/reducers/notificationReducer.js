@@ -5,7 +5,16 @@ const notificationSlice = createSlice({
   initialState: null,
   reducers: {
     setNotificationMessage: (state, action) => {
-      return { message: action.payload.message, type: action.payload.type };
+      try {
+        const { message, type } = action.payload;
+        // Garantiza que message sea siempre una cadena
+        const validMessage =
+          typeof message === "string" ? message : JSON.stringify(message);
+        return { message: validMessage, type };
+      } catch (error) {
+        console.error("Error setting notification message:", error);
+        return state; // Devuelve el estado actual si ocurre un error
+      }
     },
     clearNotification: () => null,
   },
@@ -16,11 +25,19 @@ export const { setNotificationMessage, clearNotification } =
 
 export const setNotification = (message, type, displayTime) => {
   return (dispatch) => {
-    dispatch(setNotificationMessage({ message, type }));
+    try {
+      dispatch(setNotificationMessage({ message, type }));
 
-    setTimeout(() => {
-      dispatch(clearNotification());
-    }, displayTime * 1000);
+      setTimeout(() => {
+        try {
+          dispatch(clearNotification());
+        } catch (error) {
+          console.error("Error clearing notification:", error);
+        }
+      }, displayTime * 1000);
+    } catch (error) {
+      console.error("Error setting notification:", error);
+    }
   };
 };
 

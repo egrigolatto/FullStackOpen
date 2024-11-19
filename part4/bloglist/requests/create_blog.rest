@@ -1,9 +1,9 @@
 POST http://localhost:3003/api/blogs
 Content-Type: application/json
-Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImVtYWdyaWdvIiwiaWQiOiI2NmRmNjM2N2Q0ZjEzMTAzNDBiZmI5ODUiLCJpYXQiOjE3MjU5MTYwNzcsImV4cCI6MTcyNTkxOTY3N30.b5p3AJLDBSr5SLEOgEvPglPNXk1zRTrOSjjU2NgGU5o
+Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImJhdHVzYWkiLCJpZCI6IjY3M2E4YjllNzI4ODVlMGIyMjA3NjY1ZSIsImlhdCI6MTczMjAyMTgyOCwiZXhwIjoxNzMyMDI1NDI4fQ.nsurBbaTMYG5v5KrzEZNOjVmfxYyf62WpjN2pu6EZeM
 
 {
-  "title": "prueba1",
+  "title": "prueba2",
   "author": "ema",
   "url": "String",
   "likes": 100
