@@ -7,16 +7,19 @@ const Notification = () => {
     return null;
   }
 
-  const style = {
-    border: "solid",
-    padding: 10,
-    borderWidth: 1,
-    margin: 10,
-    background: "lightgrey",
-    color: notification.type === "success" ? "green" : "red",
-  };
+  const notificationStyle =
+    notification.type === "success" ? "alert-success" : "alert-danger";
 
-  return <div style={style}>{notification.message}</div>;
+  return (
+    <div
+      className={`alert ${notificationStyle} container mt-3`}
+      role="alert"
+      style={{ maxWidth: "600px" }}
+    >
+      {notification.message}
+    </div>
+  );
 };
 
 export { Notification };
+

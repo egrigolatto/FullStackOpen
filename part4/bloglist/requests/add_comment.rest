@@ -1,10 +1,7 @@
-POST http://localhost:3003/api/blogs
+POST http://localhost:3003/api/blogs/674dff1b0381648a45f48826/comments
 Content-Type: application/json
 Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImVtYWdyaWdvIiwiaWQiOiI2NzRkZmVjNzAzODE2NDhhNDVmNDg4MjAiLCJpYXQiOjE3MzMxNjQ3ODQsImV4cCI6MTczMzE2ODM4NH0.eVX4fIg_pwl94sKs6mlKEqxlTdtVIyseU5aemeLVQ-Y
 
 {
-  "title": "probando ando",
-  "author": "Emanuel",
-  "url": "String",
-  "likes": 100
+    "comment": "soy un comentario nuevo"
 }

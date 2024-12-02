@@ -123,4 +123,35 @@ blogsRouter.put("/:id", userExtractor, async (request, response) => {
   response.json(result);
 });
 
+blogsRouter.post("/:id/comments", userExtractor, async (request, response) => {
+  const user = request.user;
+  const { id } = request.params;
+  const { comment } = request.body;
+
+  if (!comment || comment.trim() === "") {
+    return response.status(400).json({ error: "Comment cannot be empty" });
+  }
+
+  const blog = await Blog.findById(id);
+  if (!blog) {
+    return response.status(404).json({ error: "Blog not found" });
+  }
+
+  const newComment = {
+    text: comment,
+    user: {
+      id: user._id,
+      username: user.username,
+      name: user.name,
+    },
+  };
+
+  blog.comments = blog.comments.concat(newComment);
+  const updatedBlog = await blog.save();
+
+  response.status(201).json(updatedBlog);
+});
+
+
+
 module.exports = blogsRouter;

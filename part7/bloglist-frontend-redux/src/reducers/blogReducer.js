@@ -30,10 +30,19 @@ const blogSlice = createSlice({
       const id = action.payload;
       return state.filter((b) => b.id !== id);
     },
+    addComment(state, action) {
+      const { blogId, comment } = action.payload;
+      return state.map((blog) =>
+        blog.id === blogId
+          ? { ...blog, comments: [...blog.comments, { text: comment }] }
+          : blog
+      );
+    },
   },
 });
 
-export const { like, appendBlog, setBlogs, removeBlog } = blogSlice.actions;
+export const { like, appendBlog, setBlogs, removeBlog, addComment } =
+  blogSlice.actions;
 
 // Thunks con manejo de errores
 export const initializeBlogs = () => {
@@ -43,7 +52,9 @@ export const initializeBlogs = () => {
       dispatch(setBlogs(blogs));
     } catch (error) {
       console.error("Error fetching blogs:", error);
-      dispatch(setNotification("Error fetching blogs", "error", 5));
+      const errorMessage =
+        error.response?.data?.error || "Error fetching blogs";
+      dispatch(setNotification(errorMessage, "error", 5));
     }
   };
 };
@@ -77,9 +88,6 @@ export const likeBlog = (id) => {
 
         await blogService.update(updatedBlog);
         dispatch(like({ id }));
-        dispatch(
-          setNotification(`You liked "${blogToLike.title}"`, "success", 5)
-        );
       }
     } catch (error) {
       console.error("Error liking blog:", error);
@@ -104,6 +112,19 @@ export const deleteBlog = (id) => {
     } catch (error) {
       console.error("Error deleting blog:", error);
       dispatch(setNotification("Error deleting blog", "error", 5));
+    }
+  };
+};
+
+export const addCommentToBlog = (id, commentText) => {
+  return async (dispatch) => {
+    try {
+      const newComment = await blogService.addComment(id, commentText);
+      dispatch(addComment({ id, comment: newComment }));
+      dispatch(setNotification("Comment added successfully!", "success", 5));
+    } catch (error) {
+      console.error("Error adding comment:", error);
+      dispatch(setNotification("Error adding comment", "error", 5));
     }
   };
 };

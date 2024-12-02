@@ -37,10 +37,12 @@ export const handleLogin = (credentials) => async (dispatch) => {
     blogService.setToken(user.token);
     dispatch(setUser(user));
     dispatch(setNotification(`Logged in as ${user.name}`, "success", 5));
+    return user;
   } catch (error) {
     const errorMessage = error.response?.data?.error || "Wrong credentials";
     console.error("Login error:", error);
     dispatch(setNotification(errorMessage, "error", 5));
+    return null;
   }
 };
 

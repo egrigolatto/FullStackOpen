@@ -1,58 +1,142 @@
+import { useDispatch } from "react-redux";
+import {
+  likeBlog,
+  deleteBlog,
+  addCommentToBlog,
+} from "../reducers/blogReducer";
+import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
-const Blog = ({ blog, addLike, handleDelete, currentUser }) => {
-  const [show, setShow] = useState(false);
-  const [like, setLike] = useState(false);
+import { z } from "zod";
 
+const Blog = ({ blog, user }) => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const [comment, setComment] = useState("");
+  const [comments, setComments] = useState(blog?.comments || []);
+  const [error, setError] = useState("");
+
+  const commentSchema = z.object({
+    comment: z.string().min(1, { message: "Comment cannot be empty" }),
+  });
+
+  // useEffect para mantener los comentarios actualizados
   useEffect(() => {
-    setLike(blog.likes);
-  }, [blog.likes]);
+    if (blog && blog.comments) {
+      setComments(blog.comments);
+    }
+  }, [blog]);
 
-  const toggleShow = () => {
-    setShow(!show);
-  };
-  const Likes = async () => {
-    if (currentUser) {
-      const updatedBlog = { ...blog, likes: like + 1 };
-      await addLike(updatedBlog);
-      setLike(like + 1);
+
+  const handleLike = () => {
+    if (user) {
+      dispatch(likeBlog(blog.id));
+    } else {
+      alert("You must be logged in to like a blog.");
     }
   };
-  const deleteBlog = () => {
+
+  const handleDelete = () => {
     const confirmDelete = window.confirm(
       `¿Estás seguro de que deseas eliminar el blog "${blog.title}"?`
     );
     if (confirmDelete) {
-      handleDelete(blog);
+      dispatch(deleteBlog(blog.id));
+      navigate("/");
     }
   };
 
-  const blogStyle = {
-    paddingTop: 10,
-    paddingLeft: 2,
-    border: "solid",
-    borderWidth: 1,
-    marginBottom: 5,
+  const handleCommentSubmit = (event) => {
+    event.preventDefault();
+
+    // Validar el comentario con Zod
+    const result = commentSchema.safeParse({ comment });
+
+    if (!result.success) {
+      setError(result.error.errors[0].message);
+      return;
+    }
+
+    dispatch(addCommentToBlog(blog.id, comment));
+
+    setComments([...comments, { text: comment }]);
+    setComment("");
+    setError("");
   };
 
+  if (!blog) {
+    return <p>Loading...</p>;
+  }
+
   return (
-    <div style={blogStyle} className="blog">
-      <div>
-        {blog.title}{" "}
-        {blog.author}{" "}
-        <button onClick={toggleShow}>{show ? "hide" : "view"}</button>
-      </div>
-      {show && (
-        <div>
-         Author: {blog.author} <br />
-         URL: {blog.url} <br />
-         Likes:  {like ? like : blog.likes} <button onClick={Likes}>like</button>{" "}
-          <br />
-         User:  {blog.user.name} <br />
-          {currentUser && currentUser.username === blog.user.username && (
-            <button onClick={deleteBlog}>delete</button>
+    <div className="container d-flex justify-content-center mt-5">
+      <div className="card shadow" style={{ maxWidth: "600px", width: "100%" }}>
+        <div className="card-body">
+          <h4 className="card-title">{blog.title}</h4>
+          <h6 className="card-subtitle mb-2 text-muted">
+            Author: {blog.author}
+          </h6>
+          <p className="card-text">
+            <strong>URL:</strong>{" "}
+            <a href={blog.url} target="_blank" rel="noopener noreferrer">
+              {blog.url}
+            </a>
+          </p>
+          <p className="card-text">
+            <strong>Likes:</strong> {blog.likes}{" "}
+            <button
+              className="btn btn-sm btn-outline-primary ms-2"
+              onClick={handleLike}
+            >
+              Like
+            </button>
+          </p>
+          <p className="card-text">
+            <strong>User:</strong> {blog.user ? blog.user.name : "Loading..."}
+          </p>
+
+          {user?.username === blog.user?.username && (
+            <button
+              className="btn btn-sm btn-outline-danger mt-2"
+              onClick={handleDelete}
+            >
+              Delete
+            </button>
           )}
+
+          <div className="mt-4">
+            <h5>Comments:</h5>
+            <ul className="list-group">
+              {comments.length > 0 ? (
+                comments.map((comment, index) => (
+                  <li key={index} className="list-group-item">
+                    {comment.text}
+                  </li>
+                ))
+              ) : (
+                <li className="list-group-item text-muted">No comments yet.</li>
+              )}
+            </ul>
+          </div>
+
+          {user && (
+            <form className="mt-3" onSubmit={handleCommentSubmit}>
+              <div className="input-group">
+                <input
+                  type="text"
+                  className="form-control"
+                  placeholder="Add a comment..."
+                  value={comment}
+                  onChange={(e) => setComment(e.target.value)}
+                />
+                <button type="submit" className="btn btn-outline-secondary">
+                  Add Comment
+                </button>
+              </div>
+            </form>
+          )}
+          {error && <div className="alert alert-danger mt-2">{error}</div>}
         </div>
-      )}
+      </div>
     </div>
   );
 };
